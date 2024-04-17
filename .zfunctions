@@ -1,0 +1,34 @@
+#!/usr/bin/env zsh
+
+search-big-files() {
+    if [[ $# -ne 2 ]] ; then
+        echo 'Usage search-big-files <FOLDER> <NUMBER OF FILES>'
+    fi
+    sudo find $1 -mount -type f -exec du -ahx {} + 2>/dev/null | sort -h -r | head -n $2
+}
+
+fhistory() {
+    bold=$(tput bold)
+    normal=$(tput sgr0)
+    command="$(history | sed 's/^[ 0-9]*//' | uniq | fzf -e -i | xargs)"
+    if [[ ! -z "${command}" ]]; then
+        if read -q "choice?Execute: ${bold}${fg[red]}${command}${normal}${reset_color} [y|${bold}N${normal}] "; then
+            eval "${command}"
+        fi
+    fi
+}
+
+search-history() {
+    if [[ $# -lt 1 ]] ; then
+        echo 'Usage search-history <GREP-OPTIONS>'
+    fi
+    history | sed 's/^[ 0-9]*//' | uniq | grep --color $@
+}
+
+highlight() {
+    grep --color -E "$1|$"
+}
+
+fman() {
+    compgen -c | fzf | xargs man
+}
